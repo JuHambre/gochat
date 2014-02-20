@@ -91,6 +91,8 @@
 				$("#msg-template .userpic").html("<img src='" + textMessage.UserInfo.Gravatar + "'>")
 				$("#msg-template .msg-time").html(textMessage.Time);
 					$("#msg-template .content").html(textMessage.Content);
+					//Anyadir el nombre del usuario
+					$("#msg-template .user").html(textMessage.UserInfo.Name + ": ");
 				$("#chat-messages").append($("#msg-template").html());
 				$('#chat-column')[0].scrollTop = $('#chat-column')[0].scrollHeight;
 			};
