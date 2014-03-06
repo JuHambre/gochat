@@ -2,6 +2,9 @@ package wscon
 
 import (
 	"code.google.com/p/go.net/websocket"
+	"crypto/cipher"
+	"crypto/rc4"
+	"crypto/sha256"
 	"github.com/kobeld/gochatting/libs"
 	"strings"
 	"time"
@@ -14,6 +17,16 @@ const (
 )
 
 var runningActiveRoom *ActiveRoom = &ActiveRoom{}
+
+// Declaramos la clave para poder utilizarla tanto al enviar como recibir mensajes
+var clave = "claveParaCifrar"
+
+// Funcion que sirve para comprobar si hay error y salir del programa (panic) en tal caso
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
 
 func BuildConnection(ws *websocket.Conn) {
 	email := ws.Request().URL.Query().Get("email")
@@ -119,6 +132,31 @@ func (this *OnlineUser) PullFromClient() {
 			return
 		}
 
+		// Podemos modificar el texto que reciben todos los usuarios
+		// content = "prueba"
+
+		// Obtenemos hash de 256 con la clave
+		h := sha256.New()
+		h.Reset()
+		h.Write([]byte(clave))
+		key := h.Sum(nil)
+
+		// Utilizamos la interfaz cipher para descifrar y cifrar
+		var S cipher.Stream
+
+		// RC4 proporciona un cipher.Stream directamente al ser cifrado en flujo
+		a, err := rc4.NewCipher(key)
+		check(err)
+		S = a
+
+		// Desciframos y parseamos de []byte a string
+		cadCifrada := []byte(content)
+		plaintext := make([]byte, len(cadCifrada))
+		S.XORKeyStream(plaintext, cadCifrada)
+		content = string(plaintext[:])
+
+		// Mostramos el mensaje a todos
+
 		m := Message{
 			MType: TEXT_MTYPE,
 			TextMessage: TextMessage{
@@ -133,6 +171,34 @@ func (this *OnlineUser) PullFromClient() {
 
 func (this *OnlineUser) PushToClient() {
 	for b := range this.Send {
+
+		// Podemos modificar el texto que se envia
+		// b.TextMessage.Content = "prueba"
+
+		// Obtenemos hash de 256 con la clave
+		h := sha256.New()
+		h.Reset()
+		h.Write([]byte(clave))
+		key := h.Sum(nil)
+
+		// Utilizamos la interfaz cipher para descifrar y cifrar
+		var S cipher.Stream
+
+		// RC4 proporciona un cipher.Stream directamente al ser cifrado en flujo
+		c, error := rc4.NewCipher(key)
+		check(error)
+		S = c
+
+		// Ciframos
+		plaintext := []byte(b.TextMessage.Content)
+		cadCifrada := make([]byte, len(plaintext))
+		S.XORKeyStream(cadCifrada, plaintext)
+
+		// Enviamos parseando de []byte a string
+		b.TextMessage.Content = string(cadCifrada[:])
+
+		// Enviamos la cadena cifrada
+
 		err := websocket.JSON.Send(this.Connection, b)
 		if err != nil {
 			break
