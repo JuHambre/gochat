@@ -19,7 +19,10 @@ func Home(env Env) (status Status, headers Headers, body Body) {
 
 func Join(env Env) (status Status, headers Headers, body Body) {
 	email := env.Request().FormValue("email")
-	if email == "" {
+	//Anyadimos contrasenya
+	password := env.Request().FormValue("password")
+	//Comprobamos ahora tambien la contrasenya
+	if email == "" || password == "" {
 		return Redirect(http.StatusFound, "/")
 	}
 
