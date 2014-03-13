@@ -2,8 +2,11 @@ package handlers
 
 import (
 	"bufio"
+	"crypto/md5"
+	"encoding/hex"
 	. "github.com/paulbellamy/mango"
 	"github.com/sunfmin/mangotemplate"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -36,6 +39,11 @@ func Join(env Env) (status Status, headers Headers, body Body) {
 		return Redirect(http.StatusFound, "/")
 	}
 
+	//Pasamos la contrasenya a hash ya que las tenemos asi en el fichero
+	h := md5.New() //Utilizamos md5
+	io.WriteString(h, password)
+	passwHash := hex.EncodeToString(h.Sum(nil))
+
 	// Leemos desde fichero de texto y comprobamos si existe el usuario
 	file, err := os.Open("usuarios.txt")
 	check(err)
@@ -43,7 +51,7 @@ func Join(env Env) (status Status, headers Headers, body Body) {
 	for scanner.Scan() {
 		s := strings.Split(scanner.Text(), " ")
 		if s[0] == email {
-			if s[1] == password {
+			if s[1] == passwHash {
 				r := env.Request()
 				mangotemplate.ForRender(env, "chats/room", &RenderData{Email: email, WebSocketHost: r.Host})
 				headers = Headers{}
