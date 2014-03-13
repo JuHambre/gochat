@@ -11,3 +11,7 @@ En la vista mostramos ahora tambien el nombre del usuario que envia el mensaje; 
 Hemos añadido el cifrador RC4 para cifrar los mensajes, como podemos ver el metodo push ahora enviamos el mensaje cifrado.
 
 Para luego desde el pull descifrar ese mensaje.
+
+## Autenticacion
+
+Ahora se puede leer desde fichero de texto y autenticar contra un fichero de texto donde tendremos los distintos usuarios y sus contraseñas
