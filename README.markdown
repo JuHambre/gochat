@@ -14,4 +14,6 @@ Para luego desde el pull descifrar ese mensaje.
 
 ## Autenticacion
 
-Ahora se puede leer desde fichero de texto y autenticar contra un fichero de texto donde tendremos los distintos usuarios y sus contraseñas
+Ahora se puede leer desde fichero de texto y autenticar contra un fichero de texto donde tendremos los distintos usuarios y sus contraseñas.
+
+Antiguamente el hash que utilizabamos para las contrasenyas era md5 pero ahora lo hemos remplazado por sha512 debido a la poca seguridad de md5.

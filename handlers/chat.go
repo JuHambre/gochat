@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"bufio"
-	"crypto/md5"
+	"crypto/sha512"
 	"encoding/hex"
 	. "github.com/paulbellamy/mango"
 	"github.com/sunfmin/mangotemplate"
@@ -39,8 +39,16 @@ func Join(env Env) (status Status, headers Headers, body Body) {
 		return Redirect(http.StatusFound, "/")
 	}
 
-	//Pasamos la contrasenya a hash ya que las tenemos asi en el fichero
+	/**
+	// Md5 no es para nada seguro por tanto no se debe utilizar y se utilizar sha512
+	// Pasamos la contrasenya a hash ya que las tenemos asi en el fichero
 	h := md5.New() //Utilizamos md5
+	io.WriteString(h, password)
+	passwHash := hex.EncodeToString(h.Sum(nil))
+	*/
+
+	// Pasamos la contrasenya a sha512
+	h := sha512.New() //Utilizamos sha512
 	io.WriteString(h, password)
 	passwHash := hex.EncodeToString(h.Sum(nil))
 
